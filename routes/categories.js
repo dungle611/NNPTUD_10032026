@@ -28,17 +28,25 @@ router.get('/:id', async function (req, res, next) {
   }
 });
 router.post('/', async function (req, res, next) {
-  let newCate = new categoryModel({
-    name: req.body.name,
-    slug: slugify(req.body.name, {
-      replacement: '-',
-      remove: undefined,
-      lower: true,
-      strict: false,
-    })
-  });
-  await newCate.save();
-  res.send(newCate)
+  try {
+    let titleStr = req.body.title || req.body.name || '';
+    if (!titleStr) {
+      return res.status(400).send({ message: "title is required" });
+    }
+    let newCate = new categoryModel({
+      name: titleStr,
+      slug: slugify(titleStr, {
+        replacement: '-',
+        remove: undefined,
+        lower: true,
+        strict: false,
+      })
+    });
+    await newCate.save();
+    res.send(newCate);
+  } catch (err) {
+    res.status(400).send({ message: err.message });
+  }
 })
 router.put('/:id', async function (req, res, next) {
   try {
